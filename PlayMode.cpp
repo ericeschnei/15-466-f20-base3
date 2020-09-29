@@ -125,7 +125,9 @@ PlayMode::PlayMode(const std::string &map_path) : blender_scene(*main_scene), ma
 		}
 	}
 
-	Sound::loop(*level_one_sample);
+
+	sound_loop = Sound::loop_3D(*level_one_sample, 1.0f, camera->transform->position, 10.0f);
+
 }
 
 PlayMode::~PlayMode() {

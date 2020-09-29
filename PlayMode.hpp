@@ -52,7 +52,7 @@ struct PlayMode : Mode {
 	// vector of all enemies alive and dead
 
 	//music coming from the tip of the leg (as a demonstration):
-	std::shared_ptr< Sound::PlayingSample > leg_tip_loop;
+	std::shared_ptr< Sound::PlayingSample > sound_loop;
 	
 	//camera:
 	Scene::Camera *camera = nullptr;
