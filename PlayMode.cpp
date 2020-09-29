@@ -55,13 +55,82 @@ PlayMode::PlayMode(const std::string &map_path) : blender_scene(*main_scene), ma
 	scene.cameras.push_back(old_camera);
 	camera = &scene.cameras.front();
 
+	auto copy_drawable = [](Scene::Drawable *drawable) -> Scene::Drawable * {
+		Scene::Drawable *ret = new Scene::Drawable( new Scene::Transform() );
+		ret->transform->name = drawable->transform->name;
+		ret->transform->position = drawable->transform->position;
+		ret->transform->rotation = drawable->transform->rotation;
+		ret->transform->scale = drawable->transform->scale;
+		ret->transform->parent = drawable->transform->parent;
+
+		ret->pipeline = drawable->pipeline;
+		return ret;
+	};
+
+	Scene::Drawable *old_enemy = nullptr;
+	Scene::Drawable *old_floor = nullptr;
+	Scene::Drawable *old_spike = nullptr;
+	Scene::Drawable *old_arrow = nullptr;
+	for (Scene::Drawable &d : blender_scene.drawables) {
+		std::cout << d.transform->name << std::endl;
+		if (d.transform->name == "Player") {
+			player_drawable = copy_drawable(&d);
+		} else if (d.transform->name == "Sword") {
+			sword_drawable = copy_drawable(&d);
+		} else if (d.transform->name == "Enemy") {
+			old_enemy = &d;
+		} else if (d.transform->name == "Hole") {
+			old_spike = &d;
+		} else if (d.transform->name == "Floor") {
+			old_floor = &d;
+		} else if (d.transform->name == "Bow") {
+			bow_drawable = copy_drawable(&d);
+		} else if (d.transform->name == "Arrow") {
+			old_arrow = &d;
+		}
+	}
+	(void) old_arrow;
+
 	for (size_t y = 0; y < map.size.y; y++) {
 		for (size_t x = 0; x < map.size.x; x++) {
-			if (map.tiles[y * map.size.x + x] == LevelMap::Tile::Spikes) std::cout << "1";
-			else std::cout << "0";
+			LevelMap::Tile t = map.tiles[y * map.size.x + x];
+			glm::vec3 pos = LevelMap::TileSize * glm::vec3((float)x, (float)y, 0.0f);
+			if (t == LevelMap::Tile::Spikes) {
+				Scene::Drawable *d;
+				d = copy_drawable(old_spike);
+				scene.drawables.push_back(*d);
+				spike_drawables.push_back(d);
+				d->transform->position = pos;
+			} else {
+				Scene::Drawable *d;
+				d = copy_drawable(old_floor);
+				scene.drawables.push_back(*d);
+				floor_drawables.push_back(d);
+				d->transform->position = pos;
+			}
+
+			if (t == LevelMap::Tile::EnemySpawner) {
+				Scene::Drawable *d;
+				d = copy_drawable(old_enemy);
+				scene.drawables.push_back(*d);
+				enemy_drawables.push_back(d);
+				d->transform->position = pos;
+			}
+			
+			if (t == LevelMap::Tile::PlayerSpawner) {
+				scene.drawables.push_back(*player_drawable);
+				scene.drawables.push_back(*sword_drawable);
+				scene.drawables.push_back(*bow_drawable);
+				player_drawable->transform->position = pos;
+				sword_drawable->transform->position = pos;
+				bow_drawable->transform->position = pos;
+
+				camera->transform->position = pos + glm::vec3(0.0f, 0.0f, 50.0f);
+				camera->transform->rotation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f));
+			}
 		}
-		std::cout << std::endl;
 	}
+
 }
 
 PlayMode::~PlayMode() {
@@ -128,6 +197,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 }
 
 void PlayMode::update(float elapsed) {
+
 
 	//move sound to follow leg tip position:
 

@@ -9,6 +9,7 @@
 #include <deque>
 
 #include "LevelMap.hpp"
+#include "Player.hpp"
 
 struct PlayMode : Mode {
 	PlayMode(const std::string &map_path);
@@ -32,7 +33,15 @@ struct PlayMode : Mode {
 	Scene scene;
 
 	LevelMap map;
+	std::vector< Scene::Drawable * > floor_drawables;
+	std::vector< Scene::Drawable * > spike_drawables;
+	std::vector< Scene::Drawable * > enemy_drawables;
+	std::vector< Scene::Drawable * > arrow_drawables;
+	Scene::Drawable *player_drawable;
+	Scene::Drawable *bow_drawable;
+	Scene::Drawable *sword_drawable;
 
+	Player *player;
 	//music coming from the tip of the leg (as a demonstration):
 	std::shared_ptr< Sound::PlayingSample > leg_tip_loop;
 	
