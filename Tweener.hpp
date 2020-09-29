@@ -1,20 +1,20 @@
 #pragma once
 #include <deque>
+#include <iostream>
 #include "glm/glm.hpp"
 
 template <typename T>
 struct Tweener {
 
 	T value;
-	float period;
-	float elapsed;
+	float elapsed = 0.0f;
 	std::deque<std::pair<float, T>> actions;
 
 	/* Constructs a Tweener object.
 	 * _start - the starting position of the object to be tweened
 	 */
 	Tweener(T _start) : value(_start) {}
-	
+	Tweener() = default;
 	/* Returns whether there is currently an operation being performed.
 	 * Useful to determine collision.
 	 */
@@ -27,7 +27,7 @@ struct Tweener {
 	 * if _elapsed is passed in, this will update *before* returning.
 	 */
 	T get(float _elapsed = 0.0f) {
-		
+
 		elapsed += _elapsed;
 		while (actions.size() > 0 && elapsed >= actions.back().first) {
 			value = actions.back().second;

@@ -96,8 +96,6 @@ GAME_NAMES =
 	Sound
 	load_wav
 	load_opus
-	Tweener
-	LevelMap
 	;
 
 COMMON_NAMES =
@@ -115,6 +113,8 @@ COMMON_NAMES =
 	Load
 	Tweener
 	LevelMap
+	Player
+	Enemy
 	;
 
 SHOW_MESHES_NAMES =

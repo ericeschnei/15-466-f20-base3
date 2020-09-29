@@ -35,13 +35,16 @@ struct PlayMode : Mode {
 	Scene scene;
 
 	LevelMap map;
-	std::vector< Scene::Drawable * > floor_drawables;
+	
+	static constexpr size_t NumEnemies = 70;
+	std::array< Scene::Drawable * , NumEnemies > enemy_drawables;
+	std::array< Tweener<glm::vec3>, NumEnemies > enemies;
+	float timer = 0.0f;
+
 	std::vector< Scene::Drawable * > spike_drawables;
-	std::vector< Scene::Drawable * > enemy_drawables;
-	std::vector< Scene::Drawable * > arrow_drawables;
+	glm::vec3 camera_offset = glm::vec3(0.0f, 0.0f, 200.0f);
+	glm::quat camera_direction = glm::quat(glm::vec3(0.0f,0.0f,0.0f));
 	Scene::Drawable *player_drawable;
-	Scene::Drawable *bow_drawable;
-	Scene::Drawable *sword_drawable;
 
 	Player *player;
 	//music coming from the tip of the leg (as a demonstration):
@@ -50,4 +53,5 @@ struct PlayMode : Mode {
 	//camera:
 	Scene::Camera *camera = nullptr;
 
+	glm::vec2 get_random_pos(glm::uvec2 bounds);
 };

@@ -11,8 +11,7 @@ struct Player {
 	
 	static constexpr float MoveTime = 0.25f;
 
-	Player(Scene::Transform *_transform, glm::vec3 initial_position) : 
-		transform(_transform), position(initial_position) {}
+	Player(glm::vec3 initial_position) : position(initial_position) {}
 	~Player();
 
 
@@ -27,6 +26,8 @@ struct Player {
 		Left,
 		Right
 	};
+
+	void update(float elapsed);
 
 	/* Attempt a player move. Returns true if move succeeded. */
 	bool move(Direction d, LevelMap &map);

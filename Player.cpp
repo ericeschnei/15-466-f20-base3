@@ -2,6 +2,11 @@
 
 Player::~Player() {}
 
+void Player::update(float elapsed) {
+	position.get(elapsed);
+	euler_angles.get(elapsed);
+}
+
 bool Player::move(Direction d, LevelMap &map) {
 	// check if we're already moving
 	if (euler_angles.is_tweening() || position.is_tweening()) {

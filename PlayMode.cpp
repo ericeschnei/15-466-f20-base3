@@ -45,8 +45,15 @@ Load< Scene > main_scene(LoadTagDefault, []() -> Scene const * {
 
 Load< Sound::Sample > level_one_sample(LoadTagDefault, []() -> Sound::Sample const* {
 	return new Sound::Sample(data_path("game3bg.wav"));
-	});
+});
 
+glm::vec2 PlayMode::get_random_pos(glm::uvec2 bounds) {
+	static std::mt19937 mt = std::mt19937((unsigned int)time(0));
+
+	auto r = glm::vec2((float)(mt() % bounds.x), (float)(mt() % bounds.y));	
+	return glm::clamp(4.0f * r - glm::vec2(bounds), glm::vec2(0.0f, 0.0f), 2.0f * glm::vec2(bounds) - glm::vec2(2.0f, 2.0f));
+
+}
 
 PlayMode::PlayMode(const std::string &map_path) : blender_scene(*main_scene), map(LevelMap(data_path(map_path))) {
 	//get pointer to camera for convenience:
@@ -68,70 +75,57 @@ PlayMode::PlayMode(const std::string &map_path) : blender_scene(*main_scene), ma
 		return ret;
 	};
 
-	Scene::Drawable *old_enemy = nullptr;
 	Scene::Drawable *old_floor = nullptr;
 	Scene::Drawable *old_spike = nullptr;
-	Scene::Drawable *old_arrow = nullptr;
 	for (Scene::Drawable &d : blender_scene.drawables) {
 		std::cout << d.transform->name << std::endl;
 		if (d.transform->name == "Player") {
 			player_drawable = copy_drawable(&d);
-		} else if (d.transform->name == "Sword") {
-			sword_drawable = copy_drawable(&d);
 		} else if (d.transform->name == "Enemy") {
-			old_enemy = &d;
+			for (size_t i = 0; i < NumEnemies; i++) {
+				Scene::Drawable *copy = copy_drawable(&d);
+				enemy_drawables[i] = copy;
+				scene.drawables.push_back(*copy);
+				enemies[i].override_motion(glm::vec3(get_random_pos(map.size), 0.0f));
+			}
 		} else if (d.transform->name == "Hole") {
 			old_spike = &d;
 		} else if (d.transform->name == "Floor") {
 			old_floor = &d;
-		} else if (d.transform->name == "Bow") {
-			bow_drawable = copy_drawable(&d);
-		} else if (d.transform->name == "Arrow") {
-			old_arrow = &d;
 		}
 	}
-	(void) old_arrow;
 
 	for (size_t y = 0; y < map.size.y; y++) {
 		for (size_t x = 0; x < map.size.x; x++) {
 			LevelMap::Tile t = map.tiles[y * map.size.x + x];
 			glm::vec3 pos = LevelMap::TileSize * glm::vec3((float)x, (float)y, 0.0f);
+
+			// create floor
+			Scene::Drawable *d;
+			d = copy_drawable(old_floor);
+			scene.drawables.push_back(*d);
+			d->transform->position = pos;
+
 			if (t == LevelMap::Tile::Spikes) {
 				Scene::Drawable *d;
 				d = copy_drawable(old_spike);
 				scene.drawables.push_back(*d);
 				spike_drawables.push_back(d);
 				d->transform->position = pos;
-			} else {
-				Scene::Drawable *d;
-				d = copy_drawable(old_floor);
-				scene.drawables.push_back(*d);
-				floor_drawables.push_back(d);
-				d->transform->position = pos;
 			}
 
-			if (t == LevelMap::Tile::EnemySpawner) {
-				Scene::Drawable *d;
-				d = copy_drawable(old_enemy);
-				scene.drawables.push_back(*d);
-				enemy_drawables.push_back(d);
-				d->transform->position = pos;
-			}
-			
 			if (t == LevelMap::Tile::PlayerSpawner) {
 				scene.drawables.push_back(*player_drawable);
-				scene.drawables.push_back(*sword_drawable);
-				scene.drawables.push_back(*bow_drawable);
 				player_drawable->transform->position = pos;
-				sword_drawable->transform->position = pos;
-				bow_drawable->transform->position = pos;
+				player = new Player(pos);
 
-				camera->transform->position = pos + glm::vec3(0.0f, 0.0f, 50.0f);
-				camera->transform->rotation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f));
+				camera->transform->position = pos + camera_offset;
+				camera->transform->rotation = camera_direction;
 			}
 		}
 	}
 
+	Sound::loop(*level_one_sample);
 }
 
 PlayMode::~PlayMode() {
@@ -140,10 +134,7 @@ PlayMode::~PlayMode() {
 bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
 
 	if (evt.type == SDL_KEYDOWN) {
-		if (evt.key.keysym.sym == SDLK_ESCAPE) {
-			SDL_SetRelativeMouseMode(SDL_FALSE);
-			return true;
-		} else if (evt.key.keysym.sym == SDLK_a) {
+		if (evt.key.keysym.sym == SDLK_a) {
 			left.downs += 1;
 			left.pressed = true;
 			return true;
@@ -174,24 +165,6 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			down.pressed = false;
 			return true;
 		}
-	} else if (evt.type == SDL_MOUSEBUTTONDOWN) {
-		if (SDL_GetRelativeMouseMode() == SDL_FALSE) {
-			SDL_SetRelativeMouseMode(SDL_TRUE);
-			return true;
-		}
-	} else if (evt.type == SDL_MOUSEMOTION) {
-		if (SDL_GetRelativeMouseMode() == SDL_TRUE) {
-			glm::vec2 motion = glm::vec2(
-				evt.motion.xrel / float(window_size.y),
-				-evt.motion.yrel / float(window_size.y)
-			);
-			camera->transform->rotation = glm::normalize(
-				camera->transform->rotation
-				* glm::angleAxis(-motion.x * camera->fovy, glm::vec3(0.0f, 1.0f, 0.0f))
-				* glm::angleAxis(motion.y * camera->fovy, glm::vec3(1.0f, 0.0f, 0.0f))
-			);
-			return true;
-		}
 	}
 
 	return false;
@@ -199,43 +172,41 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 void PlayMode::update(float elapsed) {
 
+	// update player
+	player->update(elapsed);
+	timer += elapsed;
+	if (timer > 0.5f) timer -= 0.5f;
 
-	//move sound to follow leg tip position:
+	static constexpr float radius = 0.05f;
 
-	//move camera:
-	{
-
-		//combine inputs into a move:
-		constexpr float PlayerSpeed = 30.0f;
-		glm::vec2 move = glm::vec2(0.0f);
-		if (left.pressed && !right.pressed) move.x =-1.0f;
-		if (!left.pressed && right.pressed) move.x = 1.0f;
-		if (down.pressed && !up.pressed) move.y =-1.0f;
-		if (!down.pressed && up.pressed) move.y = 1.0f;
-
-		//make it so that moving diagonally doesn't go faster:
-		if (move != glm::vec2(0.0f)) move = glm::normalize(move) * PlayerSpeed * elapsed;
-
-		glm::mat4x3 frame = camera->transform->make_local_to_parent();
-		glm::vec3 right = frame[0];
-		//glm::vec3 up = frame[1];
-		glm::vec3 forward = -frame[2];
-
-		camera->transform->position += move.x * right + move.y * forward;
+	player_drawable->transform->position = player->position.get();
+	
+	if (timer < radius || 0.5f - timer < radius) {
+		if (left.downs > 0) {
+			player->move(Player::Left, map);
+		} else if (right.downs > 0) {
+			player->move(Player::Right, map);
+		} else if (up.downs > 0) {
+			player->move(Player::Up, map);
+		} else if (down.downs > 0) {
+			player->move(Player::Down, map);
+		}
 	}
 
-	{ //update listener to camera position:
-		glm::mat4x3 frame = camera->transform->make_local_to_parent();
-		glm::vec3 right = frame[0];
-		glm::vec3 at = frame[3];
-		Sound::listener.set_position_right(at, right, 1.0f / 60.0f);
-	}
-
+	camera->transform->position = player->position.get() + camera_offset;
 	//reset button press counters:
 	left.downs = 0;
 	right.downs = 0;
 	up.downs = 0;
 	down.downs = 0;
+	
+	for (size_t i = 0; i < NumEnemies; i++) {
+		if (!enemies[i].is_tweening()) {
+			enemies[i].queue_motion(glm::vec3(get_random_pos(map.size), 0.0f), 8.0f);
+		}
+		enemy_drawables[i]->transform->position = enemies[i].get(elapsed);
+
+	}
 }
 
 void PlayMode::draw(glm::uvec2 const &drawable_size) {
