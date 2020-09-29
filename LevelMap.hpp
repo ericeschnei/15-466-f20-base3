@@ -17,6 +17,7 @@ struct LevelMap {
 
 	glm::uvec2 size;
 	std::vector<Tile> tiles;
+	static constexpr float TileSize = 2.0f;
 
 	static constexpr float TileSize = 2.0f;
 	static inline bool is_collidable(Tile t) {

@@ -53,4 +53,8 @@ struct Player {
 	 */
 	void damage(float invincibility);
 
+	glm::ivec2 get_new_pos(Direction d);
+
+	glm::ivec2 get_rounded_pos();
+
 };
