@@ -47,6 +47,7 @@ Load< Sound::Sample > level_one_sample(LoadTagDefault, []() -> Sound::Sample con
 	return new Sound::Sample(data_path("game3bg.wav"));
 	});
 
+
 PlayMode::PlayMode(const std::string &map_path) : blender_scene(*main_scene), map(LevelMap(data_path(map_path))) {
 	//get pointer to camera for convenience:
 	if (blender_scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(blender_scene.cameras.size()));

@@ -1,5 +1,7 @@
 #include "LevelMap.hpp"
 #include "load_save_png.hpp"
+#include "data_path.hpp"
+
 #include <stdexcept>
 
 LevelMap::LevelMap(std::string map_name) {

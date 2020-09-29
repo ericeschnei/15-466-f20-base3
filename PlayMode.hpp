@@ -1,5 +1,7 @@
 #include "Mode.hpp"
 
+#include "LevelMap.hpp"
+
 #include "Scene.hpp"
 #include "Sound.hpp"
 
