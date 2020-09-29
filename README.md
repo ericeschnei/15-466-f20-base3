@@ -1,8 +1,8 @@
-# (TODO: your game's title)
+# A Deep Introspective Walk Through the Machinations of a Twisted Soul
 
-Author: (TODO: your name)
+Author: ppwilson and eeschnei
 
-Design: (TODO: In two sentences or fewer, describe what is new and interesting about your game.)
+Design: Run as fast you can, but only to the beat. Hastiness is punished and will lead to your doom.
 
 Screen Shot:
 
@@ -10,9 +10,11 @@ Screen Shot:
 
 How To Play:
 
-(TODO: describe the controls and (if needed) goals/strategy.)
+WASD to move, remember to only move to the beat and A V O I D
 
-Sources: (TODO: list a source URL for any assets you did not create yourself. Make sure you have a license for the asset.)
+Listen the the beat of your soul to navigate away from your inner demons(represented as red ellispiods). Just play this game one time and tell me you're not moved on a visceral level.
+
+Sources: Believe it or not, these assets were masterfully crafted by yours truly. The rythmic serenade was written, produced, and directed by Eric.
 
 This game was built with [NEST](NEST.md).
 
