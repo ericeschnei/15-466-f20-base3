@@ -25,7 +25,7 @@ bool Player::move(Direction d, LevelMap &map) {
 	}
 
 	// check if tile is collidable
-	if (LevelMap::is_collidable(map.tiles[(new_pos.x + (map.size.x * new_pos.y)) / LevelMap::TileSize])) {
+	if (LevelMap::is_collidable(map.tiles[(new_pos.x + (map.size.x * new_pos.y)) / (size_t)LevelMap::TileSize])) {
 		return false;
 	}
 
