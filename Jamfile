@@ -96,6 +96,8 @@ GAME_NAMES =
 	Sound
 	load_wav
 	load_opus
+	Tweener
+	LevelMap
 	;
 
 COMMON_NAMES =
