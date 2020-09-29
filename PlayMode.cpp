@@ -14,6 +14,7 @@
 #include <iostream>
 #include <ostream>
 #include <random>
+#include <ctime>
 
 GLuint meshes_for_lit_color_texture_program = 0;
 Load< MeshBuffer > meshes(LoadTagDefault, []() -> MeshBuffer const * {
