@@ -24,6 +24,7 @@ struct PlayMode : Mode {
 	virtual void draw(glm::uvec2 const &drawable_size) override;
 
 	//----- game state -----
+	bool lost = false;
 
 	//input tracking:
 	struct Button {
@@ -37,7 +38,7 @@ struct PlayMode : Mode {
 
 	LevelMap map;
 	
-	static constexpr size_t NumEnemies = 70;
+	static constexpr size_t NumEnemies = 35;
 	std::array< Scene::Drawable * , NumEnemies > enemy_drawables;
 	std::array< Tweener<glm::vec3>, NumEnemies > enemies;
 	float timer = 0.0f;

@@ -79,7 +79,6 @@ PlayMode::PlayMode(const std::string &map_path) : blender_scene(*main_scene), ma
 	Scene::Drawable *old_floor = nullptr;
 	Scene::Drawable *old_spike = nullptr;
 	for (Scene::Drawable &d : blender_scene.drawables) {
-		std::cout << d.transform->name << std::endl;
 		if (d.transform->name == "Player") {
 			player_drawable = copy_drawable(&d);
 		} else if (d.transform->name == "Enemy") {
@@ -173,11 +172,12 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 void PlayMode::update(float elapsed) {
 
+	if (lost) return;
+
 	// update player
 	player->update(elapsed);
 	timer += elapsed;
 	if (timer > 0.5f) timer -= 0.5f;
-	std::cout << timer << "\n";
 	
 	punishment = std::max(punishment - elapsed, 0.0f);
 	player_drawable->transform->position = player->position.get();
@@ -213,7 +213,10 @@ void PlayMode::update(float elapsed) {
 			enemies[i].queue_motion(glm::vec3(get_random_pos(map.size), 0.0f), 8.0f);
 		}
 		enemy_drawables[i]->transform->position = enemies[i].get(elapsed);
-
+		if (glm::distance(enemies[i].get(), player->position.get()) < 1.0f) {
+			lost = true;
+			return;
+		}
 	}
 }
 
@@ -261,7 +264,6 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 				glm::u8vec4(0xff, 0xff, 0xff, 0x00));
 		}
 		if (punishment > 0.0f) {
-			std::cout << "BAD\n";
 			constexpr float H = 0.9f;
 			lines.draw_text("BAD",
 				glm::vec3(aspect - 1.4f * H, -1.0 + 0.1f * H, 0.0),
@@ -272,6 +274,21 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 				glm::vec3(aspect - 1.4f * H + ofs, -1.0 + +0.1f * H + ofs, 0.0),
 				glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
 				glm::u8vec4(0xff, 0x00, 0x00, 0x00));
+		}
+		if (lost) {
+			constexpr float H = 0.9f;
+			lines.draw_text("DONE",
+				glm::vec3(-aspect/2, -aspect/2, 0.0f),
+				glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+				glm::u8vec4(0x00, 0xff, 0xff, 0xff));
+			float ofs = 2.0f / drawable_size.y;
+			lines.draw_text("DONE",
+				glm::vec3(-aspect/2 + ofs, -aspect/2 + ofs, 0.0f),
+				glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+				glm::u8vec4(0x00, 0x00, 0xff, 0xff));
+			
+
+
 		}
 	}
 	GL_ERRORS();
