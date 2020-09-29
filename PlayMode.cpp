@@ -1,5 +1,6 @@
 #include "PlayMode.hpp"
 
+#include "LevelMap.hpp"
 #include "LitColorTextureProgram.hpp"
 
 #include "DrawLines.hpp"
@@ -10,6 +11,8 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include <iostream>
+#include <ostream>
 #include <random>
 
 GLuint meshes_for_lit_color_texture_program = 0;
@@ -44,11 +47,21 @@ Load< Sound::Sample > level_one_sample(LoadTagDefault, []() -> Sound::Sample con
 	return new Sound::Sample(data_path("game3bg.wav"));
 	});
 
-PlayMode::PlayMode() : scene(*main_scene) {
+PlayMode::PlayMode(const std::string &map_path) : blender_scene(*main_scene), map(LevelMap(data_path(map_path))) {
 	//get pointer to camera for convenience:
-	if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
+	if (blender_scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(blender_scene.cameras.size()));
+	auto old_camera = blender_scene.cameras.front();
+
+	scene.cameras.push_back(old_camera);
 	camera = &scene.cameras.front();
 
+	for (size_t y = 0; y < map.size.y; y++) {
+		for (size_t x = 0; x < map.size.x; x++) {
+			if (map.tiles[y * map.size.x + x] == LevelMap::Tile::Spikes) std::cout << "1";
+			else std::cout << "0";
+		}
+		std::cout << std::endl;
+	}
 }
 
 PlayMode::~PlayMode() {
@@ -199,7 +212,3 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	GL_ERRORS();
 }
 
-//glm::vec3 PlayMode::get_leg_tip_position() {
-	//the vertex position here was read from the model in blender:
-	return lower_leg->make_local_to_world() * glm::vec4(-1.26137f, -11.861f, 0.0f, 1.0f);
-}

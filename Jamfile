@@ -96,7 +96,6 @@ GAME_NAMES =
 	Sound
 	load_wav
 	load_opus
-	Tweener
 	;
 
 COMMON_NAMES =
@@ -112,6 +111,8 @@ COMMON_NAMES =
 	Mode
 	GL
 	Load
+	Tweener
+	LevelMap
 	;
 
 SHOW_MESHES_NAMES =

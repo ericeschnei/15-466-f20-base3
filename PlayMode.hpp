@@ -8,8 +8,10 @@
 #include <vector>
 #include <deque>
 
+#include "LevelMap.hpp"
+
 struct PlayMode : Mode {
-	PlayMode();
+	PlayMode(const std::string &map_path);
 	virtual ~PlayMode();
 
 	//functions called by main loop:
@@ -26,9 +28,10 @@ struct PlayMode : Mode {
 	} left, right, down, up;
 
 	//local copy of the game scene (so code can change it during gameplay):
+	Scene blender_scene;
 	Scene scene;
 
-	//glm::vec3 get_leg_tip_position();
+	LevelMap map;
 
 	//music coming from the tip of the leg (as a demonstration):
 	std::shared_ptr< Sound::PlayingSample > leg_tip_loop;

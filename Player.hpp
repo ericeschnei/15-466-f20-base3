@@ -28,14 +28,11 @@ struct Player {
 		Right
 	};
 
-	/* player state */
-	glm::ivec2 tile;
-
 	/* Attempt a player move. Returns true if move succeeded. */
 	bool move(Direction d, LevelMap &map);
 
 	/* Attempt an attack. Returns true if an enemy was killed. */
-	//bool attack(Direction d, std::vector<Enemy> &enemies);
+	bool attack(Direction d, std::vector<Enemy> &enemies);
 
 	/* Draw a bow. */
 	void draw_bow(Direction d);
@@ -43,7 +40,7 @@ struct Player {
 	/* Fire the bow. arrow_drawable is a pointer to the drawable object to
 	 * be used when emplacing a new arrow in arrows.
 	 */
-	//void fire(Scene::Drawable *arrow_drawable, std::vector<Arrow> &arrows);
+	void fire(Scene::Drawable *arrow_drawable, std::vector<Arrow> &arrows);
 	
 	/* Call when something did not succeed because it was done out of sync
 	 * with the beat. Cancels bow firing.
