@@ -7,6 +7,7 @@
 
 #include <glm/glm.hpp>
 
+#include <array>
 #include <vector>
 #include <deque>
 

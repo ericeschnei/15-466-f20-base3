@@ -1,5 +1,4 @@
 #include "Scene.hpp"
-#include <array>
 #include "glm/fwd.hpp"
 #include "Tweener.hpp"
 #include "LevelMap.hpp"
