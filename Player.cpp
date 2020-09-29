@@ -42,7 +42,7 @@ bool Player::attack(Direction d, std::vector<Enemy>& enemies)
 	glm::ivec2 new_pos = get_new_pos(d);
 	// TODO implement enemy
 	for (Enemy enemy : enemies) {
-		if (enemy.get_rounded_position() == new_pos) {
+		if (enemy.get_rounded_pos() == new_pos && enemy.is_alive()) {
 			enemy.die();
 			return true;
 		}

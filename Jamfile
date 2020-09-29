@@ -114,6 +114,7 @@ COMMON_NAMES =
 	Tweener
 	LevelMap
 	Player
+	Arrow
 	Enemy
 	;
 

@@ -41,12 +41,16 @@ struct PlayMode : Mode {
 	std::array< Tweener<glm::vec3>, NumEnemies > enemies;
 	float timer = 0.0f;
 
+	std::vector< Scene::Drawable * > floor_drawables;
 	std::vector< Scene::Drawable * > spike_drawables;
 	glm::vec3 camera_offset = glm::vec3(0.0f, 0.0f, 200.0f);
 	glm::quat camera_direction = glm::quat(glm::vec3(0.0f,0.0f,0.0f));
 	Scene::Drawable *player_drawable;
 
 	Player *player;
+
+	// vector of all enemies alive and dead
+
 	//music coming from the tip of the leg (as a demonstration):
 	std::shared_ptr< Sound::PlayingSample > leg_tip_loop;
 	
