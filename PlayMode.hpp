@@ -41,6 +41,8 @@ struct PlayMode : Mode {
 	std::array< Scene::Drawable * , NumEnemies > enemy_drawables;
 	std::array< Tweener<glm::vec3>, NumEnemies > enemies;
 	float timer = 0.0f;
+	float punishment = 0.0f;
+	static constexpr float radius = 0.20f;
 
 	std::vector< Scene::Drawable * > floor_drawables;
 	std::vector< Scene::Drawable * > spike_drawables;

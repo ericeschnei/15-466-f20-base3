@@ -177,13 +177,14 @@ void PlayMode::update(float elapsed) {
 	player->update(elapsed);
 	timer += elapsed;
 	if (timer > 0.5f) timer -= 0.5f;
-
-	static constexpr float radius = 0.05f;
-
+	std::cout << timer << "\n";
+	
+	punishment = std::max(punishment - elapsed, 0.0f);
 	player_drawable->transform->position = player->position.get();
 	
-	if (timer < radius || 0.5f - timer < radius) {
-		if (left.downs > 0) {
+	if ((timer < radius || 0.5f - timer < radius)) {
+		if (punishment > 0.0f) {}
+		else if (left.downs > 0) {
 			player->move(Player::Left, map);
 		} else if (right.downs > 0) {
 			player->move(Player::Right, map);
@@ -193,13 +194,19 @@ void PlayMode::update(float elapsed) {
 			player->move(Player::Down, map);
 		}
 	}
-
-	camera->transform->position = player->position.get() + camera_offset;
-	//reset button press counters:
+	else if (left.pressed || right.pressed || up.pressed || down.pressed) {
+		punishment = 0.5f;
+		//TODO play punishment sound
+	}
+	
 	left.downs = 0;
 	right.downs = 0;
 	up.downs = 0;
 	down.downs = 0;
+
+	camera->transform->position = player->position.get() + camera_offset;
+	//reset button press counters:
+	
 	
 	for (size_t i = 0; i < NumEnemies; i++) {
 		if (!enemies[i].is_tweening()) {
@@ -241,16 +248,31 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 			0.0f, 0.0f, 0.0f, 1.0f
 		));
 
-		constexpr float H = 0.09f;
-		lines.draw_text("Mouse motion rotates camera; WASD moves; escape ungrabs mouse",
-			glm::vec3(-aspect + 0.1f * H, -1.0 + 0.1f * H, 0.0),
-			glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
-			glm::u8vec4(0x00, 0x00, 0x00, 0x00));
-		float ofs = 2.0f / drawable_size.y;
-		lines.draw_text("Mouse motion rotates camera; WASD moves; escape ungrabs mouse",
-			glm::vec3(-aspect + 0.1f * H + ofs, -1.0 + + 0.1f * H + ofs, 0.0),
-			glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
-			glm::u8vec4(0xff, 0xff, 0xff, 0x00));
+		if (timer < radius || 0.5f - timer < radius) {
+			constexpr float H = 0.9f;
+			lines.draw_text("NOW",
+				glm::vec3(-aspect + 0.1f * H, -1.0 + 0.1f * H, 0.0),
+				glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+				glm::u8vec4(0x00, 0x00, 0x00, 0x00));
+			float ofs = 2.0f / drawable_size.y;
+			lines.draw_text("NOW",
+				glm::vec3(-aspect + 0.1f * H + ofs, -1.0 + +0.1f * H + ofs, 0.0),
+				glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+				glm::u8vec4(0xff, 0xff, 0xff, 0x00));
+		}
+		if (punishment > 0.0f) {
+			std::cout << "BAD\n";
+			constexpr float H = 0.9f;
+			lines.draw_text("BAD",
+				glm::vec3(aspect - 1.4f * H, -1.0 + 0.1f * H, 0.0),
+				glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+				glm::u8vec4(0x00, 0x00, 0x00, 0x00));
+			float ofs = 2.0f / drawable_size.y;
+			lines.draw_text("BAD",
+				glm::vec3(aspect - 1.4f * H + ofs, -1.0 + +0.1f * H + ofs, 0.0),
+				glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+				glm::u8vec4(0xff, 0x00, 0x00, 0x00));
+		}
 	}
 	GL_ERRORS();
 }
