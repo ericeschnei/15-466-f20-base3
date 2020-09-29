@@ -46,7 +46,7 @@ struct Enemy {
 	/* Fire the bow. arrow_drawable is a pointer to the drawable object to
 	 * be used when emplacing a new arrow in arrows.
 	 */
-	void fire(Scene::Drawable* arrow_drawable, std::vector<Arrow>& arrows);
+	//void fire(Scene::Drawable* arrow_drawable, std::vector<Arrow>& arrows);
 
 	/* Call when something did not succeed because it was done out of sync
 	 * with the beat. Cancels bow firing.
